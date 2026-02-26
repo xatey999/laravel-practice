@@ -2,55 +2,21 @@
 
 namespace Modules\Auth\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Actions\CreateUserAction;
+use App\Http\Controllers\Api\ApiBaseController;
+use App\DataTransferObjects\RegisterFormPayload;
+use Modules\Auth\Http\Requests\RegisterRequest;
 
-class AuthController extends Controller
+class AuthController extends ApiBaseController
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function register(RegisterRequest $request, CreateUserAction $action)
     {
-        return view('auth::index');
+        $validated = $request->validated();
+
+        $this->sendResponse(
+            $action->handle(RegisterFormPayload::fromRequest($validated)),
+            'User registered sucessfully',
+            201
+        );
     }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('auth::create');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request) {}
-
-    /**
-     * Show the specified resource.
-     */
-    public function show($id)
-    {
-        return view('auth::show');
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($id)
-    {
-        return view('auth::edit');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id) {}
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id) {}
 }
