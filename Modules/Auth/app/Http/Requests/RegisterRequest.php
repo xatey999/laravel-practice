@@ -14,11 +14,12 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'first_name' => 'required|string',
-            'last_name' => 'required|string',
-            'email' => 'required|email',
-            'phone' => 'required',
-            'role' => ['string', 'required', new Enum(UserRoleEnum::class)]
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'phone' => 'required|string',
+            'role' => ['string', 'required', new Enum(UserRoleEnum::class)],
+            'password' => 'required|string|min:8|confirmed',
         ];
     }
 

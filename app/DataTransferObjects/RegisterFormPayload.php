@@ -5,11 +5,12 @@ namespace App\DataTransferObjects;
 class RegisterFormPayload
 {
     public function __construct(
-        private readonly string $firstName,
-        private readonly string $lastName,
-        private readonly string $email,
-        private readonly string $phone,
-        private readonly string $role,
+        public readonly string $firstName,
+        public readonly string $lastName,
+        public readonly string $email,
+        public readonly string $phone,
+        public readonly string $role,
+        public readonly string $password,
     ) {}
 
     public static function fromRequest(array $validated)
@@ -19,7 +20,8 @@ class RegisterFormPayload
             $validated['last_name'],
             $validated['email'],
             $validated['phone'],
-            $validated['role']
+            $validated['role'],
+            $validated['password']
         );
     }
 }
