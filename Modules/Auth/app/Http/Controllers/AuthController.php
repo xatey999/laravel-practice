@@ -9,8 +9,7 @@ use Modules\Auth\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends ApiBaseController
@@ -37,15 +36,11 @@ class AuthController extends ApiBaseController
             'password' => 'required|string',
         ]);
 
+        if (!Auth::attempt($validated)) {
+            return $this->sendError("Invalid credentials", Response::HTTP_UNAUTHORIZED);
+        }
+
         $user = User::where('email', $validated['email'])->first();
-
-        if (!$user) {
-            return $this->sendError("Invalid email, user doesn't exists!", Response::HTTP_NOT_FOUND);
-        }
-
-        if (!Hash::check($validated['password'], $user->password)) {
-            return $this->sendError("Unauthorized!", Response::HTTP_UNAUTHORIZED);
-        }
 
         $accessToken = $user->createToken('auth_token')->plainTextToken;
 
@@ -61,18 +56,14 @@ class AuthController extends ApiBaseController
 
     public function logout(Request $request)
     {
-        $token = $request->bearerToken();
-
-        if ($token === null) {
+        if ($request->bearerToken() === null) {
             return $this->sendError("Bearer token not provided!", Response::HTTP_BAD_REQUEST);
         }
 
-        $tokenId = Str::before($token, '|');
-
-        $user = auth()->user();
+        $user = $request->user('sanctum');
 
         if ($user) {
-            $user->tokens()->where('id', $tokenId)->delete();
+            $user->currentAccessToken()->delete();
             return $this->sendResponse([], "Logged out Successfully!");
         }
 
