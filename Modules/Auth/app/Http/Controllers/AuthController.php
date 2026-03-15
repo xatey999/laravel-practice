@@ -13,10 +13,14 @@ class AuthController extends ApiBaseController
 {
     public function register(RegisterRequest $request, CreateUserAction $action)
     {
+        $user = $action->handle(RegisterFormPayload::fromRequest($request->validated()));
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         return $this->sendResponse(
-            new UserResource(
-                $action->handle(RegisterFormPayload::fromRequest($request->validated()))
-            ),
+            [
+                'user' => new UserResource($user),
+                'token' => $token,
+            ],
             'User registered successfully',
             Response::HTTP_CREATED
         );
