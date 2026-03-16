@@ -40,7 +40,7 @@ class AuthController extends ApiBaseController
             return $this->sendError("Invalid credentials", Response::HTTP_UNAUTHORIZED);
         }
 
-        $user = User::where('email', $validated['email'])->first();
+        $user = $request->user('sanctum');
 
         $accessToken = $user->createToken('auth_token')->plainTextToken;
 
