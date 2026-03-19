@@ -5,6 +5,7 @@ namespace Modules\Auth\Http\Requests;
 use App\Enums\UserRoleEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\Rules\Password;
 
 class RegisterRequest extends FormRequest
 {
@@ -19,7 +20,7 @@ class RegisterRequest extends FormRequest
             'email' => 'required|email|unique:users,email',
             'phone' => 'required|string',
             'role' => ['string', 'required', new Enum(UserRoleEnum::class)],
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required','string','confirmed', Password::default()],
         ];
     }
 

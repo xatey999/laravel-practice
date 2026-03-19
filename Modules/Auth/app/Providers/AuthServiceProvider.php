@@ -4,6 +4,7 @@ namespace Modules\Auth\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -27,6 +28,13 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
+
+        // This won't work on windows because it will try to make an external
+        // api call with curl and on Windows PHP/cURL setup the SSL cert chain cannot be verified
+        Password::defaults(fn() => 
+        Password::min(8)
+            ->uncompromised()
+        );
     }
 
     /**
