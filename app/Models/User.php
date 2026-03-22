@@ -57,4 +57,28 @@ class User extends Authenticatable
     {
         return ucfirst($this->first_name) . ' ' . ucfirst($this->last_name);
     }
+
+    /**
+     * Get the products supplied by the user.
+     */
+    public function suppliedProducts()
+    {
+        return $this->hasMany(\Modules\Categories\Models\Product::class, 'supplier_id');
+    }
+
+    /**
+     * Get the orders placed by the user.
+     */
+    public function orders()
+    {
+        return $this->hasMany(\Modules\Order\Models\Order::class);
+    }
+
+    /**
+     * Get the cart for the user.
+     */
+    public function cart()
+    {
+        return $this->hasOne(\Modules\Cart\Models\Cart::class);
+    }
 }
