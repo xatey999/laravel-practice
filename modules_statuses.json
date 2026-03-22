@@ -1,3 +1,7 @@
 {
-    "Auth": true
+    "Auth": true,
+    "Categories": true,
+    "Cart": true,
+    "Order": true,
+    "Payment": true
 }
