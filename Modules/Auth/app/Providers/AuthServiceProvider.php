@@ -33,7 +33,7 @@ class AuthServiceProvider extends ServiceProvider
         // api call with curl and on Windows PHP/cURL setup the SSL cert chain cannot be verified
         Password::defaults(fn() => 
         Password::min(8)
-            ->uncompromised()
+            // ->uncompromised()
         );
     }
 

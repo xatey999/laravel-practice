@@ -19,7 +19,7 @@ class RegisterRequest extends FormRequest
             'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'phone' => 'required|string',
-            'role' => ['string', 'required', new Enum(UserRoleEnum::class)],
+            'role' => ['nullable', 'string', new Enum(UserRoleEnum::class)],
             'password' => ['required','string','confirmed', Password::default()],
         ];
     }
