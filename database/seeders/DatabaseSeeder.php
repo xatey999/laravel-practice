@@ -35,5 +35,15 @@ class DatabaseSeeder extends Seeder
             'role' => UserRoleEnum::CUSTOMER,
             'phone' => '1234567890'
         ]);
+
+        //Create test supplier user
+        User::factory()->create([
+            'first_name' => 'Test',
+            'last_name' => 'Supplier',
+            'email' => 'supplier@example.com',
+            'password' => bcrypt('Password@123'),
+            'role' => UserRoleEnum::SUPPLIER,
+            'phone' => '9875641230'
+        ]);
     }
 }

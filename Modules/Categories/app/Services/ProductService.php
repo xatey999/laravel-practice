@@ -19,12 +19,22 @@ class ProductService
         return $this->repository->getFeaturedProducts($limit);
     }
 
+    public function getAllCategories()
+    {
+        return $this->repository->getAllCategories();
+    }
+
     public function searchAndFilter(
         ?string $search = null,
         ?int $categoryId = null,
         int $perPage = 12
     ) {
         return $this->repository->searchAndFilter($search, $categoryId, $perPage);
+    }
+
+    public function listForManagement(?string $search, ?int $categoryId, ?int $supplierId = null)
+    {
+        return $this->repository->listForManagement($search, $categoryId, $supplierId);
     }
 
     public function getProductWithImages(Product $product)
@@ -40,8 +50,13 @@ class ProductService
 
     public function updateProduct(Product $product, array $data): Product
     {
+        if (! array_key_exists('supplier_id', $data)) {
+            $data['supplier_id'] = $product->supplier_id;
+        }
+
         $productDTO = ProductDTO::fromArray($data);
         $product->update($productDTO->toArray());
+
         return $product->fresh();
     }
 

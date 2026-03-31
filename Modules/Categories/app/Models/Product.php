@@ -65,4 +65,12 @@ class Product extends Model
     {
         return 'slug';
     }
+
+    /**
+     * Alias for the `stock` column (used in forms and views as stock_quantity).
+     */
+    public function getStockQuantityAttribute(): int
+    {
+        return (int) $this->stock;
+    }
 }
