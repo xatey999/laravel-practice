@@ -35,12 +35,16 @@
                             <a href="{{ route('products.index') }}" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                                 Products
                             </a>
-                            <a href="{{ route('cart.index') }}" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                                Cart
-                            </a>
-                            <a href="{{ route('orders.index') }}" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                                Orders
-                            </a>
+                            @if($navCanShowCart)
+                                <a href="{{ route('cart.index') }}" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                    Cart
+                                </a>
+                            @endif
+                            @if($navCanShowOrders)
+                                <a href="{{ route('orders.index') }}" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                    {{ $navOrdersLabel }}
+                                </a>
+                            @endif
                         </div>
                     </div>
 
