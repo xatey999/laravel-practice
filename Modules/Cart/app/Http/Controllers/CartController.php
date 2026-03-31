@@ -4,53 +4,70 @@ namespace Modules\Cart\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Modules\Cart\Http\Requests\AddToCartRequest;
+use Modules\Cart\Models\CartItem;
+use Modules\Cart\Services\CartService;
+use Modules\Categories\Models\Product;
 
 class CartController extends Controller
 {
+    public function __construct(
+        private CartService $cartService,
+    ) {}
+
     /**
-     * Display a listing of the resource.
+     * Display the user's cart.
      */
     public function index()
     {
-        return view('cart::index');
+        $cart = $this->cartService->getUserCart(Auth::user()->id);
+        return view('cart::index', compact('cart'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Add a product to the cart.
      */
-    public function create()
+    public function add(AddToCartRequest $request, Product $product)
     {
-        return view('cart::create');
+        $this->cartService->addToCart(Auth::user()->id, $product, $request->validated()['quantity']);
+
+        return redirect()->route('cart.index')->with('success', 'Product added to cart successfully.');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Update cart item quantity.
      */
-    public function store(Request $request) {}
-
-    /**
-     * Show the specified resource.
-     */
-    public function show($id)
+    public function update(Request $request, CartItem $cartItem)
     {
-        return view('cart::show');
+        $this->authorize('update', $cartItem);
+
+        $request->validate(['quantity' => 'required|integer|min:1']);
+
+        $this->cartService->updateCartItem($cartItem, $request->quantity);
+
+        return redirect()->route('cart.index')->with('success', 'Cart updated successfully.');
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Remove item from cart.
      */
-    public function edit($id)
+    public function remove(CartItem $cartItem)
     {
-        return view('cart::edit');
+        $this->authorize('delete', $cartItem);
+
+        $this->cartService->removeFromCart($cartItem);
+
+        return redirect()->route('cart.index')->with('success', 'Item removed from cart successfully.');
     }
 
     /**
-     * Update the specified resource in storage.
+     * Clear the entire cart.
      */
-    public function update(Request $request, $id) {}
+    public function clear()
+    {
+        $this->cartService->clearUserCart(Auth::user()->id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id) {}
+        return redirect()->route('cart.index')->with('success', 'Cart cleared successfully.');
+    }
 }
