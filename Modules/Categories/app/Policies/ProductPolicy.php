@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Policies;
+namespace Modules\Categories\Policies;
 
 use App\Enums\UserRoleEnum;
 use App\Models\User;
