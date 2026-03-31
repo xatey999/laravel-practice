@@ -7,7 +7,7 @@
             <div class="p-6">
                 <h1 class="text-3xl font-bold mb-6">Create New Product</h1>
 
-                <form method="POST" action="{{ route($routePrefix . '.products.store') }}" class="space-y-6">
+                <form method="POST" action="{{ route($routePrefix . '.products.store') }}" enctype="multipart/form-data" class="space-y-6">
                     @csrf
 
                     <div>
@@ -80,6 +80,18 @@
                                   class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                                   placeholder="Enter product description">{{ old('description') }}</textarea>
                         @error('description')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div>
+                        <label for="images" class="block text-sm font-medium text-gray-700 mb-2">Product Images</label>
+                        <div class="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-4">
+                            <input type="file" id="images" name="images[]" multiple accept="image/png,image/jpeg,image/jpg,image/webp"
+                                   class="w-full text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-blue-700">
+                            <p class="text-sm text-gray-600 mt-3">Choose one or more images to upload (up to 8 files, 2MB each).</p>
+                            <p class="text-xs text-gray-500 mt-1">Tip: clear and descriptive file names make media management easier.</p>
+                        </div>
+                        @error('images')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                        @error('images.*')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                     </div>
 
                     <div class="flex gap-4">

@@ -57,36 +57,35 @@
             </div>
             @endif
 
-            @auth
             <div class="mb-6">
-                <form action="{{ route('cart.add', $product) }}" method="POST" class="flex gap-4 items-end">
-                    @csrf
-                    <div>
-                        <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
-                        <input type="number" id="quantity" name="quantity" value="1" min="1" max="{{ $product->stock_quantity }}"
-                               class="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    </div>
-                    <button type="submit" class="px-8 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 font-semibold"
-                            {{ $product->stock_quantity < 1 ? 'disabled class="bg-gray-400 cursor-not-allowed"' : '' }}>
-                        Add to Cart
-                    </button>
-                </form>
+                @if($canAddToCart)
+                    <form action="{{ route('cart.add', $product) }}" method="POST" class="flex gap-4 items-end">
+                        @csrf
+                        <div>
+                            <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                            <input type="number" id="quantity" name="quantity" value="1" min="1" max="{{ $product->stock_quantity }}"
+                                   class="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <button type="submit" class="px-8 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 font-semibold {{ $product->stock_quantity < 1 ? 'bg-gray-400 cursor-not-allowed hover:bg-gray-400' : '' }}"
+                                {{ $product->stock_quantity < 1 ? 'disabled' : '' }}>
+                            Add to Cart
+                        </button>
+                    </form>
+                @elseif($showCartRestrictedMessage)
+                    <p class="inline-block px-4 py-3 bg-gray-100 text-gray-600 rounded-lg text-sm">
+                        Cart is available for customer accounts only.
+                    </p>
+                @elseif($showLoginToPurchase)
+                    <a href="{{ route('login') }}" class="inline-block px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">
+                        Login to Purchase
+                    </a>
+                @endif
             </div>
-            @else
-            <div class="mb-6">
-                <a href="{{ route('login') }}" class="inline-block px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">
-                    Login to Purchase
-                </a>
-            </div>
-            @endauth
 
             <div class="border-t pt-6">
                 <h3 class="text-lg font-semibold mb-2">Product Status</h3>
-                <span class="px-3 py-1 rounded-full text-sm font-medium
-                    @if($product->status->value === 'active') bg-green-100 text-green-800
-                    @elseif($product->status->value === 'inactive') bg-red-100 text-red-800
-                    @else bg-yellow-100 text-yellow-800 @endif">
-                    {{ ucfirst(str_replace('_', ' ', $product->status->value)) }}
+                <span class="px-3 py-1 rounded-full text-sm font-medium {{ $statusBadgeClass }}">
+                    {{ $statusLabel }}
                 </span>
             </div>
         </div>

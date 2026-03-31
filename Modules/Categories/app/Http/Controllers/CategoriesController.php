@@ -4,9 +4,9 @@ namespace Modules\Categories\Http\Controllers;
 
 use App\Enums\UserRoleEnum;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreCategoryRequest;
-use App\Http\Requests\UpdateCategoryRequest;
 use Illuminate\Support\Str;
+use Modules\Categories\Http\Requests\StoreCategoryRequest;
+use Modules\Categories\Http\Requests\UpdateCategoryRequest;
 use Modules\Categories\Models\Category;
 use Modules\Categories\Services\CategoryService;
 

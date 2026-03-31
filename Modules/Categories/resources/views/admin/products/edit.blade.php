@@ -10,7 +10,7 @@
             <div class="p-6">
                 <h1 class="text-3xl font-bold mb-6">Edit Product</h1>
 
-                <form method="POST" action="{{ route($routePrefix . '.products.update', $product) }}" class="space-y-6">
+                <form method="POST" action="{{ route($routePrefix . '.products.update', $product) }}" enctype="multipart/form-data" class="space-y-6">
                     @csrf
                     @method('PUT')
 
@@ -90,6 +90,47 @@
                         <textarea id="description" name="description" rows="5"
                                   class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">{{ old('description', $product->description) }}</textarea>
                         @error('description')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                    </div>
+
+                    @if($product->images->count())
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-sm font-medium text-gray-700">Current Images</label>
+                            <span class="text-xs text-gray-500">Select images to remove before saving</span>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            @foreach($product->images as $image)
+                                <div class="border border-gray-200 rounded-lg p-3 bg-white shadow-sm">
+                                    <img src="{{ asset('storage/' . $image->image_path) }}" alt="{{ $product->name }}"
+                                         class="w-full h-28 object-cover rounded-md mb-3">
+                                    <label class="inline-flex items-center gap-2 text-sm text-red-700 font-medium">
+                                        <input type="checkbox"
+                                               name="remove_image_ids[]"
+                                               value="{{ $image->id }}"
+                                               {{ in_array($image->id, old('remove_image_ids', [])) ? 'checked' : '' }}>
+                                        Remove this image
+                                    </label>
+                                    @if($image->is_primary)
+                                        <p class="text-xs text-blue-700 bg-blue-50 rounded px-2 py-1 inline-block mt-2">Primary image</p>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                        @error('remove_image_ids')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                        @error('remove_image_ids.*')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                    </div>
+                    @endif
+
+                    <div>
+                        <label for="images" class="block text-sm font-medium text-gray-700 mb-2">Add Product Images</label>
+                        <div class="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-4">
+                            <input type="file" id="images" name="images[]" multiple accept="image/png,image/jpeg,image/jpg,image/webp"
+                                   class="w-full text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-blue-700">
+                            <p class="text-sm text-gray-600 mt-3">Upload replacement/new images after selecting old ones for removal.</p>
+                            <p class="text-xs text-gray-500 mt-1">Supported: JPG, PNG, WEBP. Max 8 files, 2MB each.</p>
+                        </div>
+                        @error('images')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                        @error('images.*')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                     </div>
 
                     <div class="flex gap-4">

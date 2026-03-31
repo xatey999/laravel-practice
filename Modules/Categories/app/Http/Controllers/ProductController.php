@@ -4,10 +4,8 @@ namespace Modules\Categories\Http\Controllers;
 
 use App\Enums\UserRoleEnum;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreProductRequest;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
+use Modules\Categories\Http\Requests\StoreProductRequest;
 use Modules\Categories\Models\Product;
 use Modules\Categories\Services\ProductService;
 
@@ -30,30 +28,44 @@ class ProductController extends Controller
         $categoryId = request('category') ? (int) request('category') : null;
         $categories = $this->productService->getAllCategories();
         $user = Auth::user();
+        $isManagementView = $user?->role === UserRoleEnum::ADMIN || $user?->role === UserRoleEnum::SUPPLIER;
 
-        if ($user?->role === UserRoleEnum::ADMIN) {
-            $products = $this->productService->listForManagement($search, $categoryId, null);
-
-            return view('categories::admin.products.index', [
-                'products' => $products,
-                'categories' => $categories,
-                'routePrefix' => 'admin',
-            ]);
-        }
-
-        if ($user?->role === UserRoleEnum::SUPPLIER) {
-            $products = $this->productService->listForManagement($search, $categoryId, Auth::id());
+        if ($isManagementView) {
+            $products = $this->productService->getManagementProductsForUser($user, $search, $categoryId);
+            $routePrefix = $this->productService->getRoutePrefixForUser($user);
 
             return view('categories::admin.products.index', [
                 'products' => $products,
                 'categories' => $categories,
-                'routePrefix' => 'supplier',
+                'routePrefix' => $routePrefix,
             ]);
         }
 
         $products = $this->productService->searchAndFilter($search, $categoryId);
+        $manageProductsUrl = match ($user?->role) {
+            UserRoleEnum::ADMIN => route('admin.products.index'),
+            UserRoleEnum::SUPPLIER => route('supplier.products.index'),
+            default => null,
+        };
+        $canAddToCart = $user?->role === UserRoleEnum::CUSTOMER;
+        $showCartRestrictedMessage = $user !== null && ! $canAddToCart;
+        $showLoginToPurchase = $user === null;
 
-        return view('categories::products.index', compact('products', 'categories'));
+        return view('categories::products.index', [
+            'products' => $products,
+            'categories' => $categories,
+            'manageProductsUrl' => $manageProductsUrl,
+            'canAddToCart' => $canAddToCart,
+            'showCartRestrictedMessage' => $showCartRestrictedMessage,
+            'showLoginToPurchase' => $showLoginToPurchase,
+            'searchValue' => $search,
+            'selectedCategoryId' => $categoryId,
+            'hasActiveFilters' => $search !== null || $categoryId !== null,
+            'paginationQuery' => array_filter([
+                'search' => $search,
+                'category' => $categoryId,
+            ], static fn ($value) => $value !== null && $value !== ''),
+        ]);
     }
 
     /**
@@ -63,11 +75,9 @@ class ProductController extends Controller
     {
         $categories = $this->productService->getAllCategories();
         $user = Auth::user();
-        $isAdmin = $user->role === UserRoleEnum::ADMIN;
-        $suppliers = $isAdmin
-            ? User::query()->where('role', UserRoleEnum::SUPPLIER)->orderBy('first_name')->orderBy('last_name')->get()
-            : collect();
-        $routePrefix = $isAdmin ? 'admin' : 'supplier';
+        $routePrefix = $this->productService->getRoutePrefixForUser($user);
+        $isAdmin = $routePrefix === 'admin';
+        $suppliers = $this->productService->getSuppliersForForm($user);
 
         return view('categories::admin.products.create', compact('categories', 'suppliers', 'isAdmin', 'routePrefix'));
     }
@@ -77,16 +87,10 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
-        $validated = $request->validated();
         $user = Auth::user();
-
-        if ($user->role === UserRoleEnum::SUPPLIER) {
-            $validated['supplier_id'] = Auth::id();
-        }
-        $validated['slug'] = Str::slug($request->name, '-');
-        $this->productService->createProduct($validated);
-
-        $routePrefix = $user->role === UserRoleEnum::ADMIN ? 'admin' : 'supplier';
+        $validated = $this->productService->prepareProductDataForUser($request->validated(), $user);
+        $this->productService->createProduct($validated, $request->file('images', []));
+        $routePrefix = $this->productService->getRoutePrefixForUser($user);
 
         return redirect()->route($routePrefix.'.products.index')->with('success', 'Product created successfully.');
     }
@@ -97,8 +101,16 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         $product = $this->productService->getProductWithImages($product);
+        $user = Auth::user();
 
-        return view('categories::products.show', compact('product'));
+        return view('categories::products.show', [
+            'product' => $product,
+            'canAddToCart' => $user?->role === UserRoleEnum::CUSTOMER,
+            'showCartRestrictedMessage' => $user !== null && $user?->role !== UserRoleEnum::CUSTOMER,
+            'showLoginToPurchase' => $user === null,
+            'statusBadgeClass' => $this->resolveProductStatusBadgeClass($product->status->value),
+            'statusLabel' => ucfirst(str_replace('_', ' ', $product->status->value)),
+        ]);
     }
 
     /**
@@ -106,13 +118,12 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
+        $product = $this->productService->getProductWithImages($product);
         $categories = $this->productService->getAllCategories();
         $user = Auth::user();
-        $isAdmin = $user->role === UserRoleEnum::ADMIN;
-        $suppliers = $isAdmin
-            ? User::query()->where('role', UserRoleEnum::SUPPLIER)->orderBy('first_name')->orderBy('last_name')->get()
-            : collect();
-        $routePrefix = $isAdmin ? 'admin' : 'supplier';
+        $routePrefix = $this->productService->getRoutePrefixForUser($user);
+        $isAdmin = $routePrefix === 'admin';
+        $suppliers = $this->productService->getSuppliersForForm($user);
 
         return view('categories::admin.products.edit', compact('product', 'categories', 'suppliers', 'isAdmin', 'routePrefix'));
     }
@@ -122,18 +133,15 @@ class ProductController extends Controller
      */
     public function update(StoreProductRequest $request, Product $product)
     {
-        $validated = $request->validated();
         $user = Auth::user();
+        $validated = $this->productService->prepareProductDataForUser($request->validated(), $user, $product);
+        $this->productService->updateProduct(
+            $product,
+            $validated,
+            $request->file('images', [])
+        );
 
-        if ($user->role === UserRoleEnum::SUPPLIER) {
-            unset($validated['supplier_id']);
-        }
-        if ($request->name !== $product->name) {
-            $validated['slug'] = Str::slug($request->name, '-');
-        }
-        $this->productService->updateProduct($product, $validated);
-
-        $routePrefix = $user->role === UserRoleEnum::ADMIN ? 'admin' : 'supplier';
+        $routePrefix = $this->productService->getRoutePrefixForUser($user);
 
         return redirect()->route($routePrefix.'.products.index')->with('success', 'Product updated successfully.');
     }
@@ -145,9 +153,17 @@ class ProductController extends Controller
     {
         $this->productService->deleteProduct($product);
         $user = Auth::user();
-
-        $routePrefix = $user->role === UserRoleEnum::ADMIN ? 'admin' : 'supplier';
+        $routePrefix = $this->productService->getRoutePrefixForUser($user);
 
         return redirect()->route($routePrefix.'.products.index')->with('success', 'Product deleted successfully.');
+    }
+
+    private function resolveProductStatusBadgeClass(string $status): string
+    {
+        return match ($status) {
+            'active' => 'bg-green-100 text-green-800',
+            'inactive' => 'bg-red-100 text-red-800',
+            default => 'bg-yellow-100 text-yellow-800',
+        };
     }
 }

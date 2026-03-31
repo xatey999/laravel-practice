@@ -32,7 +32,6 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 font-medium">Name</th>
-                                <th class="px-6 py-3 font-medium">Slug</th>
                                 <th class="px-6 py-3 font-medium">Category</th>
                                 @if($routePrefix === 'admin')
                                 <th class="px-6 py-3 font-medium">Supplier</th>
@@ -40,7 +39,7 @@
                                 <th class="px-6 py-3 font-medium">Price</th>
                                 <th class="px-6 py-3 font-medium">Stock</th>
                                 <th class="px-6 py-3 font-medium">Status</th>
-                                <th class="px-6 py-3 font-medium">Actions</th>
+                                <th class="px-6 py-3 font-medium text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="border-t">
@@ -51,7 +50,6 @@
                                         {{ $product->name }}
                                     </a>
                                 </td>
-                                <td class="px-6 py-4 text-gray-600 text-xs">{{ $product->slug }}</td>
                                 <td class="px-6 py-4 text-gray-600">{{ $product->category->name ?? 'N/A' }}</td>
                                 @if($routePrefix === 'admin')
                                 <td class="px-6 py-4 text-gray-600">{{ $product->supplier->full_name ?? $product->supplier->email ?? 'N/A' }}</td>
@@ -63,28 +61,30 @@
                                         {{ $product->status->value }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 space-x-2">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center justify-end gap-2">
                                     <a href="{{ route($routePrefix . '.products.edit', $product) }}"
-                                       class="inline px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">
+                                       class="inline-flex items-center px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">
                                         Edit
                                     </a>
                                     <a href="{{ route('products.show', $product) }}"
-                                       class="inline px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
+                                       class="inline-flex items-center px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
                                         View
                                     </a>
                                     <form method="POST" action="{{ route($routePrefix . '.products.destroy', $product) }}"
                                           class="inline" onsubmit="return confirm('Are you sure?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">
+                                        <button type="submit" class="inline-flex items-center px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">
                                             Delete
                                         </button>
                                     </form>
+                                    </div>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="{{ $routePrefix === 'admin' ? 8 : 7 }}" class="px-6 py-4 text-center text-gray-500">
+                                <td colspan="{{ $routePrefix === 'admin' ? 7 : 6 }}" class="px-6 py-4 text-center text-gray-500">
                                     No products found.
                                 </td>
                             </tr>
