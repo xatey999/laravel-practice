@@ -4,13 +4,20 @@ namespace Modules\Categories\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Enums\ProductStatus;
+use Modules\Categories\Database\Factories\ProductFactory;
 
 class Product extends Model
 {
     use HasFactory;
+
+    protected static function newFactory(): Factory
+    {
+        return ProductFactory::new();
+    }
 
     /**
      * The attributes that are mass assignable.

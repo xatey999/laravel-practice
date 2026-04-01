@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\UserRoleEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -27,6 +28,8 @@ class UserFactory extends Factory
             'first_name' => fake()->firstName('male'),
             'last_name' => fake()->lastName('male'),
             'email' => fake()->unique()->safeEmail(),
+            'phone' => fake()->unique()->numerify('9#########'),
+            'role' => UserRoleEnum::CUSTOMER,
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
@@ -40,6 +43,27 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => UserRoleEnum::ADMIN,
+        ]);
+    }
+
+    public function customer(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => UserRoleEnum::CUSTOMER,
+        ]);
+    }
+
+    public function supplier(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => UserRoleEnum::SUPPLIER,
         ]);
     }
 }

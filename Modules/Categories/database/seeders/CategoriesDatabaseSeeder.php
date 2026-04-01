@@ -11,6 +11,10 @@ class CategoriesDatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // $this->call([]);
+        $this->call([
+            CategorySeeder::class,
+            ProductSeeder::class,
+            ProductImageSeeder::class,
+        ]);
     }
 }
