@@ -46,6 +46,14 @@ The goal is to practice **database design**, **relationships**, and **clean modu
 
    `--seed` is optional: omit it if you do not want demo users, categories, products, and cart data. Use it if you want sample data for browsing the app.
 
+   If you ran the seeder, you can sign in with these accounts (development only):
+
+   | Role     | Email                 | Password    |
+   |----------|----------------------|-------------|
+   | Admin    | `admin@mail.com`     | `Admin@123` |
+   | Customer | `test@example.com`   | `Password@123` |
+   | Supplier | `supplier@example.com` | `Password@123` |
+
 6. **Run the app**
 
    ```bash
