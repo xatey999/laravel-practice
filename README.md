@@ -1,59 +1,65 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Ecommerce App (Laravel)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## What is this application?
 
-## About Laravel
+This is a **Laravel 12** learning project built with a **modular structure** ([nwidart/laravel-modules](https://github.com/nwidart/laravel-modules)). It models a small **e-commerce style** domain: users with roles (admin, customer, supplier), **categories and products** with images, a **shopping cart**, and modules for **orders** and **payments** as the feature set grows.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+**Functionality at a glance**
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- Browse and manage **product catalog** (categories, products, product images).
+- **Customers** can use a **cart** tied to their account.
+- **Suppliers** are linked to products they supply; **admins** can manage catalog content depending on how routes and policies are wired in your branch.
+- **Orders** and **payments** live in separate modules for clear boundaries; seed data focuses on users, catalog, and cart so you can run and explore the app locally.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+The goal is to practice **database design**, **relationships**, and **clean module boundaries** in a real Laravel app—not a production storefront.
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Local setup (after cloning)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+1. **Copy environment file**  
+   Copy `.env.example` and rename it to `.env`.
 
-## Laravel Sponsors
+2. **Install dependencies**
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+   ```bash
+   composer install && npm install
+   ```
 
-### Premium Partners
+3. **Application key**
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+   ```bash
+   php artisan key:generate
+   ```
 
-## Contributing
+4. **Storage link** (for uploaded or seeded files served under `storage/`)
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+   ```bash
+   php artisan storage:link
+   ```
 
-## Code of Conduct
+5. **Database**
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+   ```bash
+   php artisan migrate --seed
+   ```
 
-## Security Vulnerabilities
+   `--seed` is optional: omit it if you do not want demo users, categories, products, and cart data. Use it if you want sample data for browsing the app.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+6. **Run the app**
 
-## License
+   ```bash
+   php artisan serve && npm run dev
+   ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+That is all required for the application.
+
+---
+
+## Requirements
+
+- PHP 8.2+
+- [Composer](https://getcomposer.org/)
+- Node.js and npm (for the Vite frontend toolchain)
+
+The default `.env.example` uses **SQLite**; ensure `database/database.sqlite` exists if you keep that configuration, or configure MySQL/PostgreSQL in `.env` instead.
